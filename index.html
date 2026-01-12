@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>島嶼地息 | THE SCENT OF FORMOSA</title>
+    
+    <link rel="icon" href="logo1.png" type="image/png">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400&family=Noto+Serif+TC:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --paper-bg: #F9F7F2;
+            --ink-black: #493728; 
+            --brand-brown: #5D4037;
+            --line-color: rgba(73, 55, 40, 0.15);
+            --color-north: #C86C61;
+            --color-central: #F5BD47;
+            --color-south: #3BB0C9;
+            --color-east: #369040;
+            --transition: 2s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; cursor: none; } 
+
+        body {
+            background-color: var(--paper-bg);
+            color: var(--ink-black);
+            font-family: 'Noto Sans TC', sans-serif;
+            transition: background-color var(--transition);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        #smoke-canvas {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 1; opacity: 0.4;
+        }
+
+        body::before {
+            content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: url('https://www.transparenttextures.com/patterns/stardust.png');
+            opacity: 0.05; pointer-events: none; z-index: 0;
+        }
+
+        header {
+            position: fixed; top: 0; left: 0; width: 100%; padding: 30px 5vw;
+            display: flex; justify-content: space-between; align-items: center;
+            z-index: 1000; pointer-events: none;
+        }
+        header .logo-box { pointer-events: auto; width: 120px; }
+        header img { width: 100%; }
+
+        #custom-cursor {
+            position: fixed; width: 22px; height: 22px; border: 1px solid var(--ink-black);
+            border-radius: 50%; pointer-events: none; z-index: 99999;
+            transition: transform 0.1s ease-out;
+        }
+
+        h1, h2, h3, .slogan, .soil-title { font-family: 'Noto Serif TC', serif; font-weight: 500; letter-spacing: 0.15rem; color: var(--ink-black); }
+
+        section { padding: 15vh 12vw; min-height: 100vh; display: flex; flex-direction: column; justify-content: center; position: relative; z-index: 2; }
+
+        /* 1. 起始 Hero - 僅保留標語 */
+        .hero { text-align: center; }
+        .hero-bot { opacity: 0; transform: translateY(20px); animation: reveal 2s forwards 0.8s; }
+        @keyframes reveal { to { opacity: 1; transform: translateY(0); } }
+
+        /* 2. 頁型 A: 左字右圖 */
+        .page-a { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; }
+        .page-a-content { max-width: 450px; }
+        .taiwan-map-container { 
+            width: 100%; 
+            height: 500px; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center;
+            border-left: 0.5px solid var(--line-color);
+            padding-left: 40px;
+        }
+        .taiwan-map-container img { max-width: 100%; max-height: 100%; object-fit: contain; opacity: 0.8; }
+
+        /* 3. 土壤轉譯 (Page B) */
+        .page-b { text-align: center; max-width: 800px; margin: 0 auto; }
+        .scent-flow { display: flex; justify-content: space-between; align-items: center; margin: 60px 0; font-size: 0.75rem; letter-spacing: 3px; opacity: 0.7; }
+        .flow-line-container { flex: 1; height: 1px; background: rgba(73, 55, 40, 0.2); margin: 0 20px; position: relative; overflow: hidden; }
+        .flow-line-inner { position: absolute; left: 0; top: 0; height: 100%; width: 0; background: var(--ink-black); transition: width 2s ease-in-out; }
+        .show .flow-line-inner { width: 100%; }
+
+        .product-section { background: rgba(255,255,255,0.8); padding: 120px 10%; z-index: 5; }
+        .product-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; margin-top: 60px; }
+        .silhouette { height: 180px; background: var(--paper-bg); display: flex; align-items: center; justify-content: center; margin-bottom: 20px; }
+
+        .separator-space { min-height: 40vh; background-color: var(--paper-bg) !important; display: flex; align-items: center; justify-content: center; z-index: 5; }
+
+        /* 6. 資訊欄 - 修改為正片咖啡色 */
+        footer { 
+            background-color: var(--ink-black) !important; 
+            color: var(--paper-bg); 
+            padding: 100px 5vw; 
+            text-align: center; 
+            position: relative; 
+            z-index: 10;
+        }
+        footer img { height: 40px; margin-bottom: 30px; filter: brightness(0) invert(1); }
+
+        /* 彈窗樣式 */
+        .modal { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(249,247,242,0.98); z-index: 20000; 
+            display: none; justify-content: center; overflow-y: auto; 
+        }
+        .modal-content { 
+            max-width: 700px; margin: 12vh auto 10vh; padding: 0 40px; 
+            position: relative; line-height: 2.2; text-align: justify; 
+            opacity: 0; transform: translateY(30px); transition: 0.8s;
+        }
+        .modal.active .modal-content { opacity: 1; transform: translateY(0); }
+        
+        .close { 
+            position: fixed; top: 40px; right: 5vw; font-size: 3rem; 
+            font-weight: 200; color: var(--ink-black); cursor: pointer; 
+            z-index: 30000; transition: 0.3s; pointer-events: auto;
+        }
+
+        .story-img { width: 100%; height: auto; max-height: 400px; object-fit: cover; margin-bottom: 40px; filter: sepia(15%); }
+
+        .btn-minimal { display: inline-block; padding: 10px 25px; border: 0.5px solid var(--ink-black); background: none; margin-top: 40px; letter-spacing: 2px; text-transform: uppercase; font-size: 0.7rem; transition: 0.4s; pointer-events: auto; }
+        .btn-minimal:hover { background: rgba(73, 55, 40, 0.05); letter-spacing: 4px; }
+
+        .fade-in { opacity: 0; transform: translateY(30px); transition: 1.5s cubic-bezier(0.23, 1, 0.32, 1); }
+        .fade-in.show { opacity: 1; transform: translateY(0); }
+    </style>
+</head>
+<body>
+
+    <div id="custom-cursor"></div>
+    <canvas id="smoke-canvas"></canvas>
+
+    <header>
+        <div class="logo-box">
+            <img src="LOGO.png" alt="島嶼地息 LOGO">
+        </div>
+    </header>
+
+    <div id="modal-overlay" class="modal">
+        <span class="close" onclick="closeModal()">✕</span>
+        <div class="modal-content">
+            <div id="modal-body"></div>
+        </div>
+    </div>
+
+    <section class="hero">
+        <div class="hero-bot">
+            <p class="slogan" style="font-size: 1.5rem; font-weight: 300;">從土壤開始，聞見台灣</p>
+        </div>
+    </section>
+
+    <section class="page-a fade-in">
+        <div class="page-a-content">
+            <h2 style="font-size: 1.8rem; margin-bottom: 30px;">地層下的沈默敘事</h2>
+            <p style="margin-bottom: 20px; font-weight: 300;">世界 12 種土綱中，台灣奇蹟般擁有了 11 種。這座島嶼在極小面積內，濃縮了全球地質的萬年演化。</p>
+            <p style="font-weight: 300;">我們透過「香氣」轉化沈默的地層，讓冷硬的地質數據成為可以被嗅聞、被觸摸的島嶼記憶。</p>
+        </div>
+        <div class="taiwan-map-container">
+            <img src="taiwan-map.png" alt="台灣地質分佈圖">
+        </div>
+    </section>
+
+    <section id="north" class="page-b fade-in">
+        <h2 class="soil-title">北部｜灰燼土</h2>
+        <p style="font-size: 0.8rem; letter-spacing: 2px; opacity: 0.6;">ANDISOLS</p>
+        <div class="scent-flow">
+            <span>灰燼地層</span><div class="flow-line-container"><div class="flow-line-inner"></div></div><span>草山柑</span><div class="flow-line-container"><div class="flow-line-inner"></div></div><span>桶柑果皮調</span>
+        </div>
+        <button class="btn-minimal" onclick="openModal('story-north')">Explore Narrative</button>
+    </section>
+
+    <section id="central" class="page-b fade-in">
+        <h2 class="soil-title">中部｜極育土</h2>
+        <p style="font-size: 0.8rem; letter-spacing: 2px; opacity: 0.6;">ULTISOLS</p>
+        <div class="scent-flow">
+            <span>紅土高原</span><div class="flow-line-container"><div class="flow-line-inner"></div></div><span>甘露梨</span><div class="flow-line-container"><div class="flow-line-inner"></div></div><span>泥香質調</span>
+        </div>
+        <button class="btn-minimal" onclick="openModal('story-central')">Explore Narrative</button>
+    </section>
+
+    <section id="south" class="page-b fade-in">
+        <h2 class="soil-title">南部｜旱境土</h2>
+        <p style="font-size: 0.8rem; letter-spacing: 2px; opacity: 0.6;">ARIDISOLS</p>
+        <div class="scent-flow">
+            <span>鹽田遺址</span><div class="flow-line-container"><div class="flow-line-inner"></div></div><span>鹽之花</span><div class="flow-line-container"><div class="flow-line-inner"></div></div><span>海洋清香</span>
+        </div>
+        <button class="btn-minimal" onclick="openModal('story-south')">Explore Narrative</button>
+    </section>
+
+    <section id="east" class="page-b fade-in">
+        <h2 class="soil-title">東部｜澎轉土</h2>
+        <p style="font-size: 0.8rem; letter-spacing: 2px; opacity: 0.6;">VERTISOLS</p>
+        <div class="scent-flow">
+            <span>縱谷脈動</span><div class="flow-line-container"><div class="flow-line-inner"></div></div><span>森林芬多精</span><div class="flow-line-container"><div class="flow-line-inner"></div></div><span>苔蘚泥香</span>
+        </div>
+        <button class="btn-minimal" onclick="openModal('story-east')">Explore Narrative</button>
+    </section>
+
+    <section class="product-section">
+        <h2 class="soil-title" style="border-bottom: 1px solid var(--line-color); padding-bottom: 20px; font-size: 2rem;">日常感知的延續</h2>
+        <div class="product-grid">
+            <div class="product-card fade-in">
+                <div class="silhouette"><img src="logo1.png" style="width:25px; opacity:0.1;"></div>
+                <h3>塔香 DIY 禮盒</h3>
+            </div>
+            <div class="product-card fade-in">
+                <div class="silhouette"><img src="logo1.png" style="width:25px; opacity:0.1;"></div>
+                <h3>工藝線香</h3>
+            </div>
+            <div class="product-card fade-in">
+                <div class="silhouette"><img src="logo1.png" style="width:25px; opacity:0.1;"></div>
+                <h3>香氛噴霧</h3>
+            </div>
+        </div>
+    </section>
+
+    <section class="separator-space">
+        <p style="opacity: 0.5; letter-spacing: 5px; font-size: 0.9rem;">讓從土壤開始，聞見台灣</p>
+    </section>
+
+    <footer>
+        <img src="logo1.png" alt="Footer Logo">
+        <p style="margin-bottom: 10px; font-weight: 300; font-family: 'Noto Serif TC', serif;">島嶼地息</p>
+        <p style="opacity: 0.6; font-size: 0.6rem;">THE SCENT OF FORMOSA © 2026</p>
+    </footer>
+
+    <div id="story-north" style="display:none;">
+        <img src="north-story.jpg" class="story-img">
+        <h3>台北｜在硫磺霧氣中，守護那抹消失的橘色血脈</h3>
+        <p><br>在北投，草山柑不僅是一顆水果，更是這片土地流動的血脈。主理人心絨姐自述「流著北投血脈」，自小在草山腳下長大，她記憶中最深刻的味道，就是那抹帶有火山礦物氣息的酸甜。</p>
+        <p>「草山柑是桶柑的始祖，但復育的路比想像中孤獨。」心絨姐說道。為了不讓這份在地信物消失，她與食雲集的夥伴發起復育運動，找來植物診療師、保價全收，讓近 25 位老農重新燃起鬥志。在溫泉鄉的硫磺霧氣中，她們復植了 300 株苗木，堅持將地產地銷的永續化為口中的康普茶與果醬。</p>
+    </div>
+
+    <div id="story-central" style="display:none;">
+        <img src="central-story.jpg" class="story-img">
+        <h3>台中｜東勢山坡間的甘露梨執著</h3>
+        <p><br>在台中東勢的山坡間，有一座用心經營的甘露梨果園。這裡的梨子，口感與甜度全由氣候與農人的細心決定。乾旱時，果實糖度升高卻顯得粗硬；雨水過多時，雖然汁水飽滿卻少了香甜。農家面對這些自然挑戰，只能憑經驗調整採收時機，讓每一顆梨子都呈現最佳狀態。</p>
+        <p>果園以甘露梨為主要品種。農家採用套袋與減少農藥的方式，不僅確保果實安全，也維持口感。熟度的拿捏，是農夫最重要的功夫。這是一段屬於東勢的故事：土地與人共生，甜美梨子是最真誠的回報。</p>
+    </div>
+
+    <div id="story-south" style="display:none;">
+        <img src="south-story.jpg" class="story-img">
+        <h3>台南｜封存在時光裡的純白，鹽田遺址間的感官備忘錄</h3>
+        <p><br>台南的鹽田，是一場關於時間與烈日的馬拉松。雖然台灣在民國 91 年因成本考量全面停止了日曬鹽，但這片土地上依舊留存著關於瓦盤鹽田的記憶。</p>
+        <p>「雖然曬鹽已經停了，但那份與老天爺博弈的智慧不能丟。」我們與曾見證鹽業興衰的長輩對話。過去，海水需在蒸發池曝曬兩到三週，沈澱出雜質，最終在結晶池中化為純白。這份來自土地的氣息，是我們在遺址間重新採集的、關於烈日與時間最誠實的味道。</p>
+    </div>
+
+    <div id="story-east" style="display:none;">
+        <img src="east-story.jpg" class="story-img">
+        <h3>台東｜在會呼吸的土地上，聽見縱谷林間的深呼吸</h3>
+        <p><br>踏入東部縱谷，泥土會隨著季節乾濕膨脹、收縮，像是在緩慢地呼吸。在這裡，我們不談喧囂的訪談，而是跟隨大地的節奏沉靜下來。</p>
+        <p>走進森林與稻間，空氣中瀰漫著一股濕潤的重量感。這種被稱為「澎轉土」的黏土質地，雖然讓建築變得困難，卻賦予了作物極強的生命張力。晨間的霧氣鎖住了苔蘚的清香，森林裡的芬多精與稻禾生長的氣息交織在一起，形成一種深沉而溫暖的穩定感。</p>
+    </div>
+
+    <script>
+        // 1. 鼠標跟隨
+        const cursor = document.getElementById('custom-cursor');
+        document.addEventListener('mousemove', e => {
+            cursor.style.left = e.clientX + 'px';
+            cursor.style.top = e.clientY + 'px';
+        });
+
+        // 2. 滾動淡入觀察
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('show'); });
+        }, { threshold: 0.1 });
+        document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+        // 3. 背景變色邏輯
+        window.addEventListener('scroll', () => {
+            const scroll = window.scrollY;
+            const sections = [
+                { id: 'north', color: '#C86C61' },
+                { id: 'central', color: '#F5BD47' },
+                { id: 'south', color: '#3BB0C9' },
+                { id: 'east', color: '#369040' }
+            ];
+            let activeColor = '#F9F7F2';
+            sections.forEach(s => {
+                const el = document.getElementById(s.id);
+                if (el && scroll >= el.offsetTop - 500 && scroll < el.offsetTop + el.offsetHeight) activeColor = s.color;
+            });
+            const prodSec = document.querySelector('.product-section');
+            if (scroll >= prodSec.offsetTop - 300) activeColor = '#F9F7F2';
+            document.body.style.backgroundColor = activeColor;
+        });
+
+        // 4. 煙霧粒子動畫
+        const canvas = document.getElementById('smoke-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+        window.addEventListener('resize', resize); resize();
+
+        class Particle {
+            constructor(x, y) { 
+                this.x = x; this.y = y; this.size = Math.random() * 60 + 20; this.opacity = 0.4; 
+                this.vx = Math.random() * 1.5 - 0.75; this.vy = Math.random() * -1.5; 
+            }
+            update() { this.x += this.vx; this.y += this.vy; this.opacity -= 0.003; if(this.size < 100) this.size += 0.5; }
+            draw() { 
+                ctx.fillStyle = `rgba(73, 55, 40, ${this.opacity})`; 
+                ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill(); 
+            }
+        }
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            if (Math.random() < 0.04) particles.push(new Particle(Math.random() * canvas.width, canvas.height + 50));
+            particles.forEach((p, i) => { p.update(); p.draw(); if (p.opacity <= 0) particles.splice(i, 1); });
+            requestAnimationFrame(animate);
+        }
+        animate();
+        window.addEventListener('mousemove', (e) => { if (Math.random() < 0.15) particles.push(new Particle(e.clientX, e.clientY)); });
+
+        // 5. 彈窗邏輯
+        function openModal(id) {
+            const modal = document.getElementById('modal-overlay');
+            document.getElementById('modal-body').innerHTML = document.getElementById(id).innerHTML;
+            modal.style.display = 'block';
+            setTimeout(() => modal.classList.add('active'), 10);
+            document.body.style.overflow = 'hidden'; 
+        }
+        function closeModal() {
+            const modal = document.getElementById('modal-overlay');
+            modal.classList.remove('active');
+            setTimeout(() => { modal.style.display = 'none'; document.body.style.overflow = 'auto'; }, 600);
+        }
+    </script>
+</body>
+</html>
