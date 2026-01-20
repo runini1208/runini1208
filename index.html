@@ -5,10 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>島嶼地息 | THE SCENT OF FORMOSA</title>
     
-    <link rel="shortcut icon" href="logo1.png?v=1.1" type="image/png">
-    <link rel="icon" href="logo1.png?v=1.1" type="image/png">
-    <link rel="apple-touch-icon" href="logo1.png?v=1.1">
-
+    <link rel="icon" href="logo1.png" type="image/png">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400&family=Noto+Serif+TC:wght@400;500;600&display=swap" rel="stylesheet">
     
     <style>
@@ -35,13 +32,11 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        /* 煙霧畫布層級 */
         #smoke-canvas {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             pointer-events: none; z-index: 1; opacity: 0.4;
         }
 
-        /* 手工紙顆粒質感 */
         body::before {
             content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background-image: url('https://www.transparenttextures.com/patterns/stardust.png');
@@ -56,7 +51,6 @@
         header .logo-box { pointer-events: auto; width: 120px; }
         header img { width: 100%; }
 
-        /* 自定義鼠標 */
         #custom-cursor {
             position: fixed; width: 22px; height: 22px; border: 1px solid var(--ink-black);
             border-radius: 50%; pointer-events: none; z-index: 99999;
@@ -73,7 +67,7 @@
         @keyframes reveal { to { opacity: 1; transform: translateY(0); } }
 
         /* 2. 頁型 A: 左字右圖 */
-        .page-a { display: grid; grid-template-columns: 1.1fr 1fr; gap: 60px; align-items: center; }
+        .page-a { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; }
         .page-a-content { max-width: 450px; }
         .taiwan-map-container { 
             width: 100%; 
@@ -93,22 +87,63 @@
         .flow-line-inner { position: absolute; left: 0; top: 0; height: 100%; width: 0; background: var(--ink-black); transition: width 2s ease-in-out; }
         .show .flow-line-inner { width: 100%; }
 
-        /* 4. 產品轉換區 */
-        .product-section { background: rgba(255,255,255,0.8); padding: 120px 10%; z-index: 5; }
-        .product-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; margin-top: 60px; }
-        .silhouette { height: 180px; background: var(--paper-bg); display: flex; align-items: center; justify-content: center; margin-bottom: 20px; }
+        /* --- 新增：影片區塊樣式 --- */
+        .video-section {
+            padding: 0; /* 滿版不留白 */
+            height: 70vh; /* 高度設定 */
+            background: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        .video-section video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* 確保影片填滿 */
+            pointer-events: auto; /* 讓影片可以點擊 */
+        }
 
-        /* 5. 分隔緩衝區 */
+        /* --- 修改：產品區塊樣式 --- */
+        .product-section { background: rgba(255,255,255,0.9); padding: 120px 10%; z-index: 5; }
+        .product-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; margin-top: 60px; }
+        
+        .product-card { text-align: center; pointer-events: auto; }
+        .product-img-box { 
+            width: 100%; 
+            aspect-ratio: 3/4; /* 設定直式長寬比 */
+            background: #f0f0f0; 
+            margin-bottom: 25px; 
+            overflow: hidden; 
+            border-radius: 4px;
+            position: relative;
+        }
+        .product-img-box img { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: cover; 
+            transition: transform 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94); 
+            display: block;
+            opacity: 1 !important; /* 強制不透明 */
+        }
+        /* 滑鼠懸停圖片放大 */
+        .product-card:hover .product-img-box img { transform: scale(1.1); }
+        .product-card h3 { font-size: 1.1rem; margin-bottom: 5px; }
+
         .separator-space { min-height: 40vh; background-color: var(--paper-bg) !important; display: flex; align-items: center; justify-content: center; z-index: 5; }
 
-        /* 6. 資訊欄 - 正片咖啡色 */
+        /* 6. 資訊欄 */
         footer { 
-            background-color: var(--ink-black) !important; color: var(--paper-bg); 
-            padding: 100px 5vw; text-align: center; position: relative; z-index: 10;
+            background-color: var(--ink-black) !important; 
+            color: var(--paper-bg); 
+            padding: 100px 5vw; 
+            text-align: center; 
+            position: relative; 
+            z-index: 10;
         }
         footer img { height: 40px; margin-bottom: 30px; filter: brightness(0) invert(1); }
 
-        /* 7. 彈窗與故事 (Modal) */
+        /* 彈窗樣式 */
         .modal { 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
             background: rgba(249,247,242,0.98); z-index: 20000; 
@@ -167,7 +202,7 @@
             <p style="font-weight: 300;">我們透過「香氣」轉化沈默的地層，讓冷硬的地質數據成為可以被嗅聞、被觸摸的島嶼記憶。</p>
         </div>
         <div class="taiwan-map-container">
-            <img src="taiwan-map.png" alt="台灣地質分佈圖">
+            <img src="taiwan-map.webp" alt="台灣地質分佈圖">
         </div>
     </section>
 
@@ -207,26 +242,39 @@
         <button class="btn-minimal" onclick="openModal('story-east')">Explore Narrative</button>
     </section>
 
+    <section class="video-section fade-in">
+        <video controls loop playsinline>
+            <source src="2026-01-20-4659.mp4" type="video/mp4">
+            您的瀏覽器不支援影片播放。
+        </video>
+    </section>
+
     <section class="product-section">
         <h2 class="soil-title" style="border-bottom: 1px solid var(--line-color); padding-bottom: 20px; font-size: 2rem;">日常感知的延續</h2>
         <div class="product-grid">
             <div class="product-card fade-in">
-                <div class="silhouette"><img src="logo1.png" style="width:25px; opacity:0.1;"></div>
+                <div class="product-img-box">
+                    <img src="1.jpeg" alt="塔香 DIY 禮盒">
+                </div>
                 <h3>塔香 DIY 禮盒</h3>
             </div>
             <div class="product-card fade-in">
-                <div class="silhouette"><img src="logo1.png" style="width:25px; opacity:0.1;"></div>
+                <div class="product-img-box">
+                    <img src="2.jpeg" alt="工藝線香">
+                </div>
                 <h3>工藝線香</h3>
             </div>
             <div class="product-card fade-in">
-                <div class="silhouette"><img src="logo1.png" style="width:25px; opacity:0.1;"></div>
+                <div class="product-img-box">
+                    <img src="3.jpeg" alt="香氛噴霧">
+                </div>
                 <h3>香氛噴霧</h3>
             </div>
         </div>
     </section>
 
     <section class="separator-space">
-        <p style="opacity: 0.5; letter-spacing: 5px; font-size: 0.9rem;">從土壤開始，聞見台灣</p>
+        <p style="opacity: 0.5; letter-spacing: 5px; font-size: 0.9rem;">讓從土壤開始，聞見台灣</p>
     </section>
 
     <footer>
@@ -239,6 +287,28 @@
         <img src="north-story.jpg" class="story-img">
         <h3>台北｜在硫磺霧氣中，守護那抹消失的橘色血脈</h3>
         <p><br>在北投，草山柑不僅是一顆水果，更是這片土地流動的血脈。主理人心絨姐自述「流著北投血脈」，自小在草山腳下長大，她記憶中最深刻的味道，就是那抹帶有火山礦物氣息的酸甜。</p>
+        <p>「草山柑是桶柑的始祖，但復育的路比想像中孤獨。」心絨姐說道。為了不讓這份在地信物消失，她與食雲集的夥伴發起復育運動，找來植物診療師、保價全收，讓近 25 位老農重新燃起鬥志。在溫泉鄉的硫磺霧氣中，她們復植了 300 株苗木，堅持將地產地銷的永續化為口中的康普茶與果醬。</p>
+    </div>
+
+    <div id="story-central" style="display:none;">
+        <img src="central-story.jpg" class="story-img">
+        <h3>台中｜東勢山坡間的甘露梨執著</h3>
+        <p><br>在台中東勢的山坡間，有一座用心經營的甘露梨果園。這裡的梨子，口感與甜度全由氣候與農人的細心決定。乾旱時，果實糖度升高卻顯得粗硬；雨水過多時，雖然汁水飽滿卻少了香甜。農家面對這些自然挑戰，只能憑經驗調整採收時機，讓每一顆梨子都呈現最佳狀態。</p>
+        <p>果園以甘露梨為主要品種。農家採用套袋與減少農藥的方式，不僅確保果實安全，也維持口感。熟度的拿捏，是農夫最重要的功夫。這是一段屬於東勢的故事：土地與人共生，甜美梨子是最真誠的回報。</p>
+    </div>
+
+    <div id="story-south" style="display:none;">
+        <img src="south-story.jpg" class="story-img">
+        <h3>台南｜封存在時光裡的純白，鹽田遺址間的感官備忘錄</h3>
+        <p><br>台南的鹽田，是一場關於時間與烈日的馬拉松。雖然台灣在民國 91 年因成本考量全面停止了日曬鹽，但這片土地上依舊留存著關於瓦盤鹽田的記憶。</p>
+        <p>「雖然曬鹽已經停了，但那份與老天爺博弈的智慧不能丟。」我們與曾見證鹽業興衰的長輩對話。過去，海水需在蒸發池曝曬兩到三週，沈澱出雜質，最終在結晶池中化為純白。這份來自土地的氣息，是我們在遺址間重新採集的、關於烈日與時間最誠實的味道。</p>
+    </div>
+
+    <div id="story-east" style="display:none;">
+        <img src="east-story.jpg" class="story-img">
+        <h3>台東｜在會呼吸的土地上，聽見縱谷林間的深呼吸</h3>
+        <p><br>踏入東部縱谷，泥土會隨著季節乾濕膨脹、收縮，像是在緩慢地呼吸。在這裡，我們不談喧囂的訪談，而是跟隨大地的節奏沉靜下來。</p>
+        <p>走進森林與稻間，空氣中瀰漫著一股濕潤的重量感。這種被稱為「澎轉土」的黏土質地，雖然讓建築變得困難，卻賦予了作物極強的生命張力。晨間的霧氣鎖住了苔蘚的清香，森林裡的芬多精與稻禾生長的氣息交織在一起，形成一種深沉而溫暖的穩定感。</p>
     </div>
 
     <script>
